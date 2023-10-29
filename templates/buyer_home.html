@@ -1,0 +1,104 @@
+{% extends 'base_buyer.html' %}
+
+{% block content %}
+<div class="container py-5 h-100">
+  <div class="card" style="border-radius: 15px;">
+    <div class="card-body p-4">
+      <div class="d-sm-flex">
+        <h4>Welcome {{user}}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container py-5 h-100">
+  <div class="card" style="border-radius: 15px;">
+    <div class="card-body p-4 ">
+        <form class="d-sm-flex flex-row justify-content-center flex-wrap" method="POST">
+          <select class="form-select w-25 mx-3" name="vendor">
+            <option>Select Vendor</option>
+            {%for vendor in vendors%}
+            <option value={{vendor.id}} {% if request.form['vendor']|string() == vendor.id|string() %}selected{%endif%}>{{vendor.name}}</option>
+            {%endfor%}
+          </select>
+          <select class="form-select w-25 mx-3" name="category">
+            <option>Select Category</option>
+            <option value="Fruits&Vegetables" {%if request.form['category']|string() =="Fruits&Vegetables"%}selected{%endif%}>Fruits&Vegetables</option>
+            <option value="Diary Items" {%if request.form['category']|string() =="Diary Items"%}selected{%endif%}>Diary Items</option>
+            <option value="Other" {%if request.form['category']|string() =="Other"%}selected{%endif%}>Other</option>
+          </select>                
+          <button type="submit" class="btn btn-primary mx-3">Filter</button>
+        </form>
+    </div>
+  </div>
+</div>
+<div class="container py-5 h-100">
+  <div class="card" style="border-radius: 15px;">
+    <div class="card-body p-4 justify-content-center" style="overflow-x:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-1">#</th>
+            <th class="col-4"></th>
+            <th class="col-3">Details</th>
+            <th class="col-4">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+          <tr>
+            <th>{{ loop.index }}</th>
+            <td><img src="/static/images/{{product['image']}}" height=100 width=180/></td>
+            <td>
+              <div class="d-flex flex-column">
+                <h6>{{ product['name'] }}</h6>
+                <span class="text-primary">{{ product['vendor'] }}</span>
+                <h5>₹ {{ product['price'] }}</h5>
+                {% if product['qty'] > 0 %}
+                <span class="text-success text-capitalize">In Stock</span>
+                <span>Quantity Available: {{product['qty']}}{{product['unit']}}</span>
+                {% else %}
+                <span class="text-danger text-capitalize">Out Of Stock</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              <form id = "package_form" method="POST" action="{{url_for('add_to_cart',id=product['id'])}}">
+                <div class="form-row">
+                  {%if product['unit']=="kg"%}
+                  <input type="number" name="quantity" value= 0 step=0.010 min=0>
+
+                  {%elif product['unit']=="g"%}
+                  <input type="number" name="quantity" value= 0 step=10 min=0>
+
+                  {%elif product['unit']=="L"%}
+                  <input type="number" name="quantity" value= 0 step=0.01 min=0>
+
+                  {%else%}
+                  <input type="number" name="quantity" value= 0 step=1 min=0>
+
+                  {%endif%}
+                  <input class="btn btn-primary mt-3 mt-md-0 " style="height:1.15cm; " type="submit" formaction="{{url_for('add_to_cart',id=product['id'])}}"name = "cart" value="Add to Cart">
+                  <input class="btn btn-primary mt-3 mt-md-0 " style="height:1.15cm; " type="submit" formaction="{{url_for('direct_order',id=product['id'])}}" name = "order" value="Order">
+                </div>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<style>
+
+input{
+  border-radius: 5px;
+  border:solid grey 1px;
+  height:.9cm;
+  margin-top:20px;
+  font-size: large;
+  padding-left: 2%;
+}
+</style>
+
+{% endblock %}
